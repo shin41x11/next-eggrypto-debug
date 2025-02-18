@@ -1,18 +1,19 @@
 {
   "name": "next-eggrypto-debug",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "15.1.7",
+    "next": "latest",
     "prisma": "^6.3.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "latest",
+    "react-dom": "latest",
+    "ethers": "^5.8.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
