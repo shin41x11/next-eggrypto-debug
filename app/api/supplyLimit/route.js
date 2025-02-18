@@ -9,7 +9,7 @@ export async function GET(request) {
   
   try {
     const provider = new JsonRpcProvider("https://polygon-mainnet.g.alchemy.com/v2/GsNgdBfxcWX8AXy9IZ-rta68ew2P6uO7");
-    const contractAddress = "0x42b4A7dB1ED930198bC37971b33e86f19cE88600";
+    const contractAddress = "0x3E2FA0c9aD72703B74d94F489e5D7542F4454778";
     const abi = [
       "function monsterIdToSupplyLimit(uint256) view returns (uint256)"
     ];
