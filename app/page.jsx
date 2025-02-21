@@ -37,7 +37,7 @@ export default function Home() {
 
   return (
     <main style={{ padding: "2rem" }}>
-      <h1>Asset Transfers (Alchemy API)</h1>
+      <h1>BlockChainMint</h1>
       <button onClick={fetchAssetTransfers}>Fetch Asset Transfers</button>
       {assetTransfers && <pre>{JSON.stringify(assetTransfers, null, 2)}</pre>}
       <div>
@@ -47,6 +47,7 @@ export default function Home() {
           value={monsterId}
           onChange={(e) => setMonsterId(e.target.value)}
         />
+        <h1>BlockChainMonster</h1>
         <button onClick={fetchSupplyLimit}>Check Supply Limit</button>
         {supplyLimit && <p>Supply Limit: {supplyLimit}</p>}
         {error && <p style={{ color: 'red' }}>Error: {error}</p>}
