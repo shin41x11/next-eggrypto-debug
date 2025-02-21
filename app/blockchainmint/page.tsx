@@ -3,7 +3,7 @@ import { useState } from 'react';
 import React from 'react';
 
 export default function BlockchainMint() {
-  const [assetTransfers, setAssetTransfers] = useState<any>(null);
+  const [assetTransfers, setAssetTransfers] = useState<unknown>(null); // 修正前: any
   const [error, setError] = useState<string | null>(null);
 
   const fetchAssetTransfers = async () => {
@@ -14,8 +14,9 @@ export default function BlockchainMint() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error');
       setAssetTransfers(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) { // 修正前: any
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
     }
   };
 
@@ -24,7 +25,7 @@ export default function BlockchainMint() {
       <h1>BlockchainMint</h1>
       <section>
         <button onClick={fetchAssetTransfers}>Fetch Asset Transfers</button>
-        {assetTransfers && <pre>{JSON.stringify(assetTransfers, null, 2)}</pre>}
+        {assetTransfers !== null && <pre>{JSON.stringify(assetTransfers, null, 2)}</pre>}
         {error && <p style={{ color: 'red' }}>Error: {error}</p>}
       </section>
     </main>

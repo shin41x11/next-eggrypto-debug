@@ -15,8 +15,9 @@ export default function BlockchainMonster() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error');
       setSupplyLimit(data.supplyLimit);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) { // 修正前: err: any
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
     }
   };
 
