@@ -9,6 +9,25 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+// BlockChainMonsters
+model BCMonsters {
+  monsterId        Int      @id @default(autoincrement()) @db.UnsignedInt
+  name             String   @db.VarChar(63)
+  supplyLimit      Int      @db.UnsignedInt
+  SupplyCount      Int      @db.UnsignedInt
+  updatedAt        DateTime @default(now()) @updatedAt() @db.Timestamp(0)
+}
+
+// BCMints
+model BCMints {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt // ID
+  tokenId   Int      @db.UnsignedInt // トークンID
+  monsterId Int      @db.UnsignedInt // モンスターID
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+}
+
+

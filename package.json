@@ -9,11 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@prisma/client": "6.3.1",
+    "ethers": "^6.13.5",
     "next": "latest",
     "prisma": "^6.3.1",
     "react": "latest",
-    "react-dom": "latest",
-    "ethers": "^6.13.5"
+    "react-dom": "latest"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
