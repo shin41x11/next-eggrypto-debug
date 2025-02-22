@@ -30,12 +30,22 @@ model BCMints {
   createdAt DateTime @default(now()) @db.Timestamp(0)
 }
 
-model BCLoads{
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt // ID
-  envType Int      @db.UnsignedInt // 環境タイプ(1: メインネット, 2: テストネット)
-  loadType  Int   @db.UnsignedInt // 読み込みタイプ(1: モンスター, 2: ミント)
-  lastBlockNumber String   @db.VarChar(63) // 最終ブロック番号(BCMints向け)
-  beginAt DateTime @default(now()) @db.Timestamp(0)
-  endAt    DateTime @default(now()) @db.Timestamp(0)
+enum EnvType {
+  MAINNET
+  TESTNET
+}
+
+enum LoadType {
+  MONSTER
+  MINT
+}
+
+model BCLoads {
+  id              Int      @id @default(autoincrement()) @db.UnsignedInt
+  envType         EnvType
+  loadType        LoadType
+  lastBlockNumber String   @db.VarChar(63)
+  beginAt         DateTime @default(now()) @db.Timestamp(0)
+  endAt           DateTime @default(now()) @db.Timestamp(0)
 }
 
