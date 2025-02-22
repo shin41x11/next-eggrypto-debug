@@ -8,13 +8,13 @@ describe('BCLoads Model', () => {
       data: {
         envType: EnvType.TESTNET,
         loadType: LoadType.MINT,
-        lastBlockNumber: 'x123456',
+        lastBlockNumber: 123456,
       },
     });
 
     expect(newLoad).toHaveProperty('id');
     expect(newLoad.envType).toBe(EnvType.TESTNET);
     expect(newLoad.loadType).toBe(LoadType.MINT);
-    expect(newLoad.lastBlockNumber).toBe('x123456');
+    expect(newLoad.lastBlockNumber).toBe(123456);
   });
 });

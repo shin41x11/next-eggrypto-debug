@@ -27,6 +27,7 @@ model BCMints {
   id        Int      @id @default(autoincrement()) @db.UnsignedInt // ID
   tokenId   Int      @db.UnsignedInt // トークンID
   monsterId Int      @db.UnsignedInt // モンスターID
+  blockNumber Int    @db.UnsignedInt @unique
   createdAt DateTime @default(now()) @db.Timestamp(0)
 }
 
@@ -44,7 +45,7 @@ model BCLoads {
   id              Int      @id @default(autoincrement()) @db.UnsignedInt
   envType         EnvType
   loadType        LoadType
-  lastBlockNumber String   @db.VarChar(63)
+  lastBlockNumber Int      @db.UnsignedInt
   beginAt         DateTime @default(now()) @db.Timestamp(0)
   endAt           DateTime @default(now()) @db.Timestamp(0)
 }
