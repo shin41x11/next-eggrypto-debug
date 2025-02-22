@@ -1,6 +1,8 @@
-export async function getAssetTransfers() {
+import { NextResponse } from "next/server";
+
+export async function GET() {
   const url = "https://polygon-mainnet.g.alchemy.com/v2/GsNgdBfxcWX8AXy9IZ-rta68ew2P6uO7";
-  const body = {
+  const body = JSON.stringify({
     id: 1,
     jsonrpc: "2.0",
     method: "alchemy_getAssetTransfers",
@@ -16,17 +18,22 @@ export async function getAssetTransfers() {
         maxCount: "0x9"
       }
     ]
-  };
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
   });
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch asset transfers');
-  }
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body
+    });
 
-  return await res.json();
+    if (!res.ok) {
+      throw new Error("Failed to fetch asset transfers");
+    }
+
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch (error: any) {
+    return new NextResponse(error.message, { status: 500 });
+  }
 }
