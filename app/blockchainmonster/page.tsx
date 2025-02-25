@@ -5,7 +5,7 @@ import React from 'react';
 export default function BlockchainMonster() {
   // 複数のmonsterIdをカンマ区切りの文字列で入力（例: "1153,2001"）
   const [monsterIds, setMonsterIds] = useState<string>("1153");
-  const [supplyLimits, setSupplyLimits] = useState<Record<string, string> | null>(null);
+  const [supplyLimits, setSupplyLimits] = useState<Record<string, { limit: string; number: string }> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchSupplyLimits = async () => {
@@ -16,13 +16,16 @@ export default function BlockchainMonster() {
       const res = await fetch(`/api/supplyLimit?monsterIds=${encodeURIComponent(monsterIds)}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error');
-      // 返り値はmonsterId毎のsupplyLimit情報を含むオブジェクトと仮定
-      setSupplyLimits(data);
+    console.log(data);
+    setSupplyLimits(data);
+
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message);
     }
   };
+
+  console.log(supplyLimits);
 
   return (
     <main style={{ padding: "2rem" }}>
@@ -38,16 +41,17 @@ export default function BlockchainMonster() {
           />
         </label>
         <h1>BlockChainMonster</h1>
-        <button onClick={fetchSupplyLimits}>Check Supply Limits</button>
+        <button onClick={fetchSupplyLimits}>Check Supplys</button>
+       
         {supplyLimits && (
           <div>
             <h2>Results:</h2>
             <ul>
-              {Object.entries(supplyLimits).map(([id, limit]) => (
-                <li key={id}>
-                  Monster ID: {id} - Supply Limit: {limit}
-                </li>
-              ))}
+              {Object.entries(supplyLimits).map(([id, info]) => (
+                              <li key={id}>
+                                Monster ID: {id} - Supply Limit: {info.limit} - Supply Count: {info.number}
+                              </li>
+                            ))}
             </ul>
           </div>
         )}
