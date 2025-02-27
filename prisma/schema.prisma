@@ -26,8 +26,9 @@ model BCMonsters {
 model BCMints {
   id        Int      @id @default(autoincrement()) @db.UnsignedInt // ID
   tokenId   Int      @db.UnsignedInt // トークンID
-  monsterId Int      @db.UnsignedInt // モンスターID
+  monsterId Int      @db.UnsignedInt @default(0) // モンスターID
   blockNumber Int    @db.UnsignedInt @unique
+  blockTimestamp DateTime @db.Timestamp(0)
   createdAt DateTime @default(now()) @db.Timestamp(0)
 }
 

@@ -4,7 +4,9 @@ import React from 'react';
 
 export default function BlockchainMonster() {
   // 複数のmonsterIdをカンマ区切りの文字列で入力（例: "1153,2001"）
-  const [monsterIds, setMonsterIds] = useState<string>("1153");
+  const [monsterIds, setMonsterIds] = useState<string>(() =>
+    Array.from({ length: 101 }, (_, i) => i + 100).join(',')
+  );
   const [supplyLimits, setSupplyLimits] = useState<Record<string, { limit: string; number: string }> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
