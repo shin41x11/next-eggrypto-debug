@@ -58,7 +58,7 @@ export const styles = {
   inputGroup: {
     marginBottom: "1rem",
     display: "flex",
-    flexDirection: "column",
+    flexDirection: 'column' as const
   },
   input: {
     padding: "0.5rem",
