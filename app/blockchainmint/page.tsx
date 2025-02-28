@@ -17,6 +17,10 @@ export default function BlockchainMint() {
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const [statsError, setStatsError] = useState<string | null>(null);
 
+  const [mergeResult, setMergeResult] = useState<unknown>(null);
+  const [isLoadingMerge, setIsLoadingMerge] = useState(false);
+  const [mergeError, setMergeError] = useState<string | null>(null);
+
   const fetchAssetTransfers = async () => {
     setError(null);
     setIsLoadingTransfers(true);
@@ -49,6 +53,22 @@ export default function BlockchainMint() {
     }
   };
 
+  const mergeMonsterId = async () => {
+    setMergeError(null);
+    setIsLoadingMerge(true);
+    try {
+      const res = await fetch('/api/mergeMonsterID');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error merging Monster ID');
+      setMergeResult(data);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setMergeError(message);
+    } finally {
+      setIsLoadingMerge(false);
+    }
+  };
+
   React.useEffect(() => {
     fetchStats();
   }, []);
@@ -65,9 +85,9 @@ export default function BlockchainMint() {
         ) : stats ? (
           <div>
             <p style={styles.statItem}>Total records: <strong>{stats.totalCount}</strong></p>
-            <p style={styles.statItem}>Max blockTimestamp: <strong>{stats.maxBlockTimestamp || 'N/A'}</strong></p>
-            <p style={styles.statItem}>Records with monsterId = 0: <strong>{stats.zeroMonsterIdCount}</strong></p>
-            <p style={styles.statItem}>Max createdAt: <strong>{stats.maxCreatedAt || 'N/A'}</strong></p>
+            <p style={styles.statItem}>Last Loaded blockTimestamp: <strong>{stats.maxBlockTimestamp || 'N/A'}</strong></p>
+            <p style={styles.statItem}>No monsterId Records Count: <strong>{stats.zeroMonsterIdCount}</strong></p>
+            <p style={styles.statItem}>Last Fetched time: <strong>{stats.maxCreatedAt || 'N/A'}</strong></p>
             <button 
               style={styles.button} 
               onClick={fetchStats}
@@ -106,6 +126,32 @@ export default function BlockchainMint() {
         ) : assetTransfers !== null ? (
           <div style={styles.jsonDisplay}>
             <pre>{JSON.stringify(assetTransfers, null, 2)}</pre>
+          </div>
+        ) : null}
+      </section>
+
+      <section style={styles.section}>
+        <h2 style={styles.sectionTitle}>Merge MonsterId</h2>
+        {!isLoadingStats && (
+          <button 
+            style={styles.button}
+            onClick={mergeMonsterId}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = '#0056b3';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = '#0070f3';
+            }}
+          >
+            Merge Monster ID
+          </button>
+        )}
+        {mergeError && <p style={styles.errorText}>Error: {mergeError}</p>}
+        {isLoadingMerge ? (
+          <p>Merging Monster IDs...</p>
+        ) : mergeResult !== null ? (
+          <div style={styles.jsonDisplay}>
+            <pre>{JSON.stringify(mergeResult, null, 2)}</pre>
           </div>
         ) : null}
       </section>

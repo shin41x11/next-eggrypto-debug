@@ -38,7 +38,7 @@ export async function GET() {
     // データを整形
     const stats = {
       totalCount,
-      maxBlockTimestamp: maxBlockTimestampResult?.blockTimestamp?.toString() || null,
+      maxBlockTimestamp: maxBlockTimestampResult?.blockTimestamp?.toISOString() || null,
       zeroMonsterIdCount,
       maxCreatedAt: maxCreatedAtResult?.createdAt?.toISOString() || null,
     };
