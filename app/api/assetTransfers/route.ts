@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
+// 転送データ用のインターフェースを定義
+interface TransferData {
+  tokenId: string;
+  blockNum: string;
+  metadata?: {
+    blockTimestamp?: string;
+  };
+}
+
 export async function GET() {
 
   try {
@@ -72,13 +81,13 @@ export async function GET() {
 //    console.log("transfers:", transfers);
 
     // Prisma Clientを使ってBCMintsに一括保存
-    const records = transfers.map((transfer: any) => {
+    const records = transfers.map((transfer: TransferData) => {
       // tokenIdは16進数文字列なので整数に変換
       const tokenIdInt = parseInt(transfer.tokenId, 16);
       const blockNumberInt = parseInt(transfer.blockNum, 16);
       
       // タイムスタンプ処理（ミリ秒を除去）
-      let timestamp = transfer.metadata?.blockTimestamp || new Date().toISOString();
+      const timestamp = transfer.metadata?.blockTimestamp || new Date().toISOString();
 
       return {
         tokenId: tokenIdInt,
@@ -94,15 +103,15 @@ export async function GET() {
         skipDuplicates: true
       });
       console.log("createMany result:", createResult);
-    } catch (err: any) {
-      console.error("createMany error:", err?.response || err);
+    } catch (err: Error | unknown) {
+      console.error("createMany error:", (err as Error)?.message || err);
       throw err;
     }
 
     await prisma.$disconnect();
 
     return NextResponse.json({ message: "Records saved successfully", count: records.length });
-  } catch (error: any) {
-    return new NextResponse(error.message, { status: 500 });
+  } catch (error: Error | unknown) {
+    return new NextResponse((error as Error).message, { status: 500 });
   }
 }
