@@ -74,9 +74,5 @@ export const styles = {
   resultItem: {
     padding: "0.5rem 0",
     borderBottom: "1px solid #eaeaea",
-  },
-  link: {
-    color: "#0070f3",
-    textDecoration: "underline",
   }
 };

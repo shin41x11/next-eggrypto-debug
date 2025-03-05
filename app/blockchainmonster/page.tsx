@@ -32,7 +32,7 @@ export default function BlockchainMonster() {
 
   return (
     <main style={styles.main}>
-      <h1 style={styles.header}>Supplys Dashboard</h1>
+      <h1 style={styles.header}>Blockchain Monster Dashboard</h1>
 
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>Supply Limit Checker</h2>
