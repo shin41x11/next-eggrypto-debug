@@ -59,7 +59,9 @@ export default function BlockchainMint() {
     try {
       const res = await fetch('/api/mergeMonsterID');
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error merging Monster ID');
+      if (!res.ok) {
+        throw new Error(data.error || `Error: ${res.status} - ${res.statusText}`);
+      }
       setMergeResult(data);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);

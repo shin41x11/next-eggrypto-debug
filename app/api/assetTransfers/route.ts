@@ -55,7 +55,8 @@ export async function GET() {
           category: ["erc721"],
           order: "asc",
           withMetadata: true,
-          maxCount: "0x64"
+//          maxCount: "0x64"
+          maxCount: "0x1"
         }
       ]
     });
@@ -78,7 +79,7 @@ export async function GET() {
       return NextResponse.json({ error: "No transfers found" }, { status: 400 });
     }
 
-//    console.log("transfers:", transfers);
+    console.log("transfers:", transfers);
 
     // Prisma Clientを使ってBCMintsに一括保存
     const records = transfers.map((transfer: TransferData) => {
