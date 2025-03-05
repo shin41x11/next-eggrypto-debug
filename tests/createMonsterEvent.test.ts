@@ -71,29 +71,46 @@ describe('CreateMonsterEvent Tests', () => {
       expect(logs.length).toBeGreaterThan(0);
 
       if (logs.length > 0) {
-        // Parse and verify the first log
-        const firstLog = logs[0] as EventLog;
+        // Get block information for each log
+        const eventDetails = await Promise.all(
+          logs.slice(0, 5).map(async (log) => { // Process first 5 events
+            const block = await provider.getBlock(log.blockNumber);
+            const firstLog = log as EventLog;
+            return {
+              blockNumber: log.blockNumber,
+              timestamp: block?.timestamp 
+                ? new Date(Number(block.timestamp) * 1000).toISOString()
+                : 'unknown',
+              transactionHash: log.transactionHash,
+              eventData: {
+                tokenId: firstLog.args[0].toString(),
+                monsterId: firstLog.args[1].toString(),
+                supplyNumber: firstLog.args[2].toString(),
+                supplyLimit: firstLog.args[3].toString(),
+                userMonsterId: firstLog.args[4].toString(),
+              }
+            };
+          })
+        );
 
-        // Verify the structure of the parsed log
-        expect(firstLog.eventName).toBe('CreateMonsterEvent');
-        expect(firstLog.args.length).toBe(5);
-
-        // Log the parsed event for manual verification
-        console.log('Parsed CreateMonsterEvent:', {
-          tokenId: firstLog.args[0].toString(),
-          monsterId: firstLog.args[1].toString(),
-          supplyNumber: firstLog.args[2].toString(),
-          supplyLimit: firstLog.args[3].toString(),
-          userMonsterId: firstLog.args[4].toString(),
+        // Log detailed event information
+        console.log('Event Details:');
+        eventDetails.forEach((detail, index) => {
+          console.log(`\nEvent ${index + 1}:`);
+          console.log('Block Number:', detail.blockNumber);
+          console.log('Timestamp:', detail.timestamp);
+          console.log('Transaction Hash:', detail.transactionHash);
+          console.log('Event Data:', detail.eventData);
         });
 
-        // Additional debug information
-        console.log('Event topics:', firstLog.topics);
-        console.log('Event data:', firstLog.data);
+        // Verify the structure of the first log
+        const firstLog = logs[0] as EventLog;
+        expect(firstLog.eventName).toBe('CreateMonsterEvent');
+        expect(firstLog.args.length).toBe(5);
       }
     } catch (error) {
       console.error('Error fetching logs:', error);
       throw error;
     }
-  }, 30000); // Increase timeout to 30 seconds
+  }, 60000); // Increase timeout to 60 seconds for block fetching
 }); 
