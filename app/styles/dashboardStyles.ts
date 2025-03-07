@@ -1,29 +1,53 @@
 import { CSSProperties } from 'react';
 
+interface ExtendedCSSProperties extends CSSProperties {
+  '&:hover'?: CSSProperties;
+}
+
+interface Styles {
+  main: CSSProperties;
+  header: CSSProperties;
+  section: CSSProperties;
+  sectionTitle: CSSProperties;
+  button: ExtendedCSSProperties;
+  errorText: CSSProperties;
+  successText: CSSProperties;
+  statItem: CSSProperties;
+  link: ExtendedCSSProperties;
+  nav: CSSProperties;
+  navList: CSSProperties;
+  navLink: ExtendedCSSProperties;
+  table: CSSProperties;
+  th: CSSProperties;
+  td: CSSProperties;
+  jsonDisplay: CSSProperties;
+  inputGroup: CSSProperties;
+  input: CSSProperties;
+  resultsList: CSSProperties;
+  resultItem: CSSProperties;
+}
+
 // 共通ダッシュボードスタイル定義
-export const styles: { [key: string]: CSSProperties } = {
+export const styles: Styles = {
   main: {
-    padding: "2rem",
+    padding: "20px",
     maxWidth: "1200px",
     margin: "0 auto",
-    fontFamily: "system-ui, sans-serif",
   },
   header: {
     color: "#333",
-    borderBottom: "2px solid #eaeaea",
-    paddingBottom: "10px",
-    marginBottom: "20px",
+    marginBottom: "30px",
   },
   section: {
-    backgroundColor: "white",
-    borderRadius: "8px",
+    marginBottom: "40px",
     padding: "20px",
-    marginBottom: "20px",
+    backgroundColor: "#fff",
+    borderRadius: "8px",
     boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
   sectionTitle: {
     color: "#444",
-    marginBottom: "15px",
+    marginBottom: "20px",
   },
   button: {
     backgroundColor: "#0070f3",
@@ -32,77 +56,84 @@ export const styles: { [key: string]: CSSProperties } = {
     padding: "10px 20px",
     borderRadius: "5px",
     cursor: "pointer",
-    fontSize: "14px",
-    marginTop: "10px",
+    fontSize: "16px",
+    '&:hover': {
+      backgroundColor: "#0056b3",
+    },
   },
   errorText: {
-    color: "#ff0000",
+    color: "#dc3545",
+    marginTop: "10px",
+  },
+  successText: {
+    color: "#28a745",
     marginTop: "10px",
   },
   statItem: {
     marginBottom: "10px",
     fontSize: "16px",
   },
-  jsonDisplay: {
-    marginTop: "20px",
-    padding: "15px",
-    backgroundColor: "#f7f7f7",
-    borderRadius: "5px",
-    overflow: "auto",
-  },
-  inputGroup: {
-    marginBottom: "1rem",
-    display: "flex",
-    flexDirection: 'column' as const
-  },
-  input: {
-    padding: "0.5rem",
-    borderRadius: "4px",
-    border: "1px solid #ccc",
-    marginTop: "0.5rem",
-    width: "100%",
-  },
-  resultsList: {
-    listStyleType: "none",
-    padding: "0",
-  },
-  resultItem: {
-    padding: "0.5rem 0",
-    borderBottom: "1px solid #eaeaea",
+  link: {
+    color: "#0070f3",
+    textDecoration: "none",
+    '&:hover': {
+      textDecoration: "underline",
+    },
   },
   nav: {
-    backgroundColor: "#333",
+    backgroundColor: "#f8f9fa",
     padding: "1rem",
-    color: "white",
+    marginBottom: "2rem",
   },
   navList: {
     listStyle: "none",
     padding: 0,
     margin: 0,
     display: "flex",
-    gap: "1rem",
+    gap: "20px",
   },
   navLink: {
-    color: "white",
+    color: "#333",
     textDecoration: "none",
-    ":hover": {
-      textDecoration: "underline",
+    fontSize: "16px",
+    '&:hover': {
+      color: "#0070f3",
     },
   },
   table: {
     width: "100%",
     borderCollapse: "collapse",
-    marginTop: "15px",
-    fontSize: "14px",
+    marginTop: "20px",
   },
   th: {
-    backgroundColor: "#f4f4f4",
+    backgroundColor: "#f8f9fa",
     padding: "12px",
     textAlign: "left",
-    borderBottom: "2px solid #ddd",
+    borderBottom: "2px solid #dee2e6",
   },
   td: {
     padding: "12px",
-    borderBottom: "1px solid #ddd",
+    borderBottom: "1px solid #dee2e6",
+  },
+  jsonDisplay: {
+    overflowX: "auto",
+  },
+  inputGroup: {
+    marginBottom: "20px",
+  },
+  input: {
+    width: "100%",
+    padding: "8px",
+    marginTop: "5px",
+    borderRadius: "4px",
+    border: "1px solid #ddd",
+  },
+  resultsList: {
+    listStyle: "none",
+    padding: 0,
+  },
+  resultItem: {
+    padding: "10px",
+    borderBottom: "1px solid #eee",
   },
 };
