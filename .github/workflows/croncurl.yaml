@@ -3,6 +3,7 @@ name: Scheduled API Request
 on:
   schedule:
     - cron: '30 * * * *'
+  workflow_dispatch:
 
 jobs:
   curl_job:
