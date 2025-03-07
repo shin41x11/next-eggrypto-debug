@@ -1,12 +1,28 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 import { styles } from '../styles/dashboardStyles';
+import { CreateMonsterEventTable } from '../components/CreateMonsterEventTable';
+
+interface CreateMonsterEvent {
+  id: number;
+  blockNumber: string;
+  timestamp: string;
+  transactionHash: string;
+  tokenId: string;
+  monsterId: string;
+  supplyNumber: string;
+  supplyLimit: string;
+  userMonsterId: string;
+  createdAt: string;
+}
 
 export default function BlockchainMint() {
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdateCount, setLastUpdateCount] = useState<number | null>(null);
+  const [events, setEvents] = useState<CreateMonsterEvent[]>([]);
+  const [isLoadingTable, setIsLoadingTable] = useState(false);
 
   const [stats, setStats] = useState<{
     totalCount: number;
@@ -33,11 +49,30 @@ export default function BlockchainMint() {
       setLastUpdateCount(data.updatedCount);
       // イベント取得後に統計情報を更新
       await fetchStats();
+      // テーブルデータも更新
+      await fetchTableData();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message);
     } finally {
       setIsLoadingEvents(false);
+    }
+  };
+
+  const fetchTableData = async () => {
+    setIsLoadingTable(true);
+    try {
+      const res = await fetch('/api/createMonsterEvent/list');
+      const data = await res.json();
+      console.log('Fetched events:', data);
+      if (!res.ok) throw new Error(data.error || 'Error fetching events');
+      setEvents(data);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error('Error fetching table data:', err);
+      setError(message);
+    } finally {
+      setIsLoadingTable(false);
     }
   };
 
@@ -57,8 +92,9 @@ export default function BlockchainMint() {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchStats();
+    fetchTableData();
   }, []);
 
   return (
@@ -119,7 +155,14 @@ export default function BlockchainMint() {
         ) : null}
       </section>
 
-
+      <section style={styles.section}>
+        <h2 style={styles.sectionTitle}>Event List</h2>
+        {isLoadingTable ? (
+          <p>Loading events...</p>
+        ) : (
+          <CreateMonsterEventTable data={events} />
+        )}
+      </section>
     </main>
   );
 }

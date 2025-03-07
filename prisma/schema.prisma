@@ -22,16 +22,6 @@ model BCMonsters {
   updatedAt        DateTime @default(now()) @updatedAt() @db.Timestamp(0)
 }
 
-// BCMints
-model BCMints {
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt // ID
-  tokenId   Int      @db.UnsignedInt // トークンID
-  monsterId Int      @db.UnsignedInt @default(0) // モンスターID
-  blockNumber Int    @db.UnsignedInt @unique
-  blockTimestamp DateTime @db.Timestamp(0)
-  createdAt DateTime @default(now()) @db.Timestamp(0)
-}
-
 model CreateMonsterEvent {
   id              Int      @id @default(autoincrement())
   blockNumber     BigInt
@@ -50,24 +40,5 @@ model CreateMonsterEvent {
   @@index([monsterId])
   @@index([tokenId])
   @@map("create_monster_events")
-}
-
-enum EnvType {
-  MAINNET
-  TESTNET
-}
-
-enum LoadType {
-  MONSTER
-  MINT
-}
-
-model BCLoads {
-  id              Int      @id @default(autoincrement()) @db.UnsignedInt
-  envType         EnvType
-  loadType        LoadType
-  lastBlockNumber Int      @db.UnsignedInt
-  beginAt         DateTime @default(now()) @db.Timestamp(0)
-  endAt           DateTime @default(now()) @db.Timestamp(0)
 }
 
