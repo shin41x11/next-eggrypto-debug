@@ -3,18 +3,36 @@ import { getCreateMonsterEvents, CreateMonsterEventDetail } from './getCreateMon
 
 export async function fetchAndStoreCreateMonsterEvents(options?: {
   limit?: number;
+  startBlock?: number;
 }): Promise<{
   message: string;
   events: CreateMonsterEventDetail[];
+  nextStartBlock?: number;
+  updatedCount: number;
 }> {
   try {
+    // 最新のイベントのブロック番号を取得（startBlockが指定されていない場合）
+    let startBlock = options?.startBlock;
+    if (!startBlock) {
+      const latestEvent = await prisma.createMonsterEvent.findFirst({
+        orderBy: [
+          { blockNumber: 'desc' },
+        ],
+        select: {
+          blockNumber: true,
+        },
+      });
+      startBlock = latestEvent ? Number(latestEvent.blockNumber) : 13000026; // デフォルトの開始ブロック
+    }
+
     // イベントを取得
     const events = await getCreateMonsterEvents({
-      limit: options?.limit || 10, // デフォルトで最新の10件を表示
+      limit: options?.limit || 10,
+      startBlock: startBlock,
     });
 
     // 取得したイベントをデータベースに保存
-    const createPromises = events.map(async (detail) => {
+    const createResults = await Promise.all(events.map(async (detail) => {
       try {
         return await prisma.createMonsterEvent.upsert({
           where: {
@@ -44,13 +62,18 @@ export async function fetchAndStoreCreateMonsterEvents(options?: {
         console.error(`Error storing event with hash ${detail.transactionHash}:`, error);
         throw error;
       }
-    });
+    }));
 
-    await Promise.all(createPromises);
+    // 次の取得開始ブロック番号を計算
+    const nextStartBlock = events.length > 0 
+      ? Math.min(...events.map(e => Number(e.blockNumber))) - 1
+      : undefined;
 
     return {
       message: "Events fetched and stored successfully",
-      events: events
+      events: events,
+      nextStartBlock,
+      updatedCount: createResults.length
     };
   } catch (error) {
     console.error('Error in fetchAndStoreCreateMonsterEvents:', error);

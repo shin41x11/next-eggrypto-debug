@@ -2,12 +2,11 @@
 import { useState } from 'react';
 import React from 'react';
 import { styles } from '../styles/dashboardStyles';
-import { CreateMonsterEventDetail } from '../lib/getCreateMonsterEvents';
 
 export default function BlockchainMint() {
-  const [events, setEvents] = useState<CreateMonsterEventDetail[] | null>(null);
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdateCount, setLastUpdateCount] = useState<number | null>(null);
 
   const [stats, setStats] = useState<{
     totalCount: number;
@@ -18,14 +17,22 @@ export default function BlockchainMint() {
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const [statsError, setStatsError] = useState<string | null>(null);
 
-  const fetchEvents = async () => {
+  const fetchEvents = async (startBlock?: number) => {
     setError(null);
     setIsLoadingEvents(true);
     try {
-      const res = await fetch('/api/createMonsterEvent/fetch');
+      const queryParams = new URLSearchParams({
+        limit: '100',
+      });
+      if (startBlock) {
+        queryParams.append('startBlock', startBlock.toString());
+      }
+      const res = await fetch(`/api/createMonsterEvent/fetch?${queryParams.toString()}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error');
-      setEvents(data.events);
+      setLastUpdateCount(data.updatedCount);
+      // イベント取得後に統計情報を更新
+      await fetchStats();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message);
@@ -59,7 +66,34 @@ export default function BlockchainMint() {
       <h1 style={styles.header}>Monster Creation Events Dashboard</h1>
 
       <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>View Statistics</h2>
+        <h2 style={styles.sectionTitle}>Load Events</h2>
+        {!isLoadingEvents && (
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+            <button 
+              style={styles.button}
+              onClick={() => {
+                fetchEvents();
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#0056b3';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = '#0070f3';
+              }}
+            >
+              Load More Events
+            </button>
+          </div>
+        )}
+        {error && <p style={styles.errorText}>Error: {error}</p>}
+        {isLoadingEvents && <p>Loading events...</p>}
+        {lastUpdateCount !== null && !isLoadingEvents && (
+          <p style={styles.successText}>Successfully updated {lastUpdateCount} records.</p>
+        )}
+      </section>
+      
+      <section style={styles.section}>
+        <h2 style={styles.sectionTitle}>Statistics</h2>
         {statsError && <p style={styles.errorText}>Error: {statsError}</p>}
         {isLoadingStats ? (
           <p>Loading statistics...</p>
@@ -85,52 +119,7 @@ export default function BlockchainMint() {
         ) : null}
       </section>
 
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Latest Monster Creation Events</h2>
-        {!isLoadingEvents && (
-          <button 
-            style={styles.button}
-            onClick={fetchEvents}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = '#0056b3';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = '#0070f3';
-            }}
-          >
-            Fetch Latest Events
-          </button>
-        )}
-        {error && <p style={styles.errorText}>Error: {error}</p>}
-        {isLoadingEvents ? (
-          <p>Loading events...</p>
-        ) : events ? (
-          <div style={styles.jsonDisplay}>
-            <table style={styles.table}>
-              <thead>
-                <tr>
-                  <th style={styles.th}>Block</th>
-                  <th style={styles.th}>Time</th>
-                  <th style={styles.th}>Monster ID</th>
-                  <th style={styles.th}>Supply</th>
-                  <th style={styles.th}>Limit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {events.map((event) => (
-                  <tr key={event.transactionHash}>
-                    <td style={styles.td}>{event.blockNumber}</td>
-                    <td style={styles.td}>{new Date(event.timestamp).toLocaleString()}</td>
-                    <td style={styles.td}>{event.eventData.monsterId}</td>
-                    <td style={styles.td}>{event.eventData.supplyNumber}</td>
-                    <td style={styles.td}>{event.eventData.supplyLimit}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
-      </section>
+
     </main>
   );
 }
