@@ -1,0 +1,11 @@
+テスト実行
+yokoi@reiuns-MacBook-Pro next-eggrypto-debug % npx jest tests/createMonsterEvent.test.ts
+
+サーバ起動
+yokoi@reiuns-MacBook-Pro next-eggrypto-debug % yarn run dev
+
+migration
+yokoi@reiuns-MacBook-Pro next-eggrypto-debug % yokoi@reiuns-MacBook-Pro next-eggrypto-debug % npx prisma migrate dev
+
+railway deployチェック
+yokoi@reiuns-MacBook-Pro next-eggrypto-debug % npm run build
