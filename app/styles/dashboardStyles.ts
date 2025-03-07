@@ -1,59 +1,54 @@
+import { CSSProperties } from 'react';
+
 // 共通ダッシュボードスタイル定義
-export const styles = {
+export const styles: { [key: string]: CSSProperties } = {
   main: {
     padding: "2rem",
     maxWidth: "1200px",
     margin: "0 auto",
-    fontFamily: "sans-serif",
+    fontFamily: "system-ui, sans-serif",
   },
   header: {
     color: "#333",
-    borderBottom: "2px solid #0070f3",
-    paddingBottom: "0.5rem",
-    marginBottom: "2rem",
+    borderBottom: "2px solid #eaeaea",
+    paddingBottom: "10px",
+    marginBottom: "20px",
   },
   section: {
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "white",
     borderRadius: "8px",
-    padding: "1.5rem",
-    marginBottom: "2rem",
+    padding: "20px",
+    marginBottom: "20px",
     boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
   sectionTitle: {
-    color: "#0070f3",
-    marginTop: "0",
-    marginBottom: "1rem",
-    fontSize: "1.5rem",
+    color: "#444",
+    marginBottom: "15px",
   },
   button: {
     backgroundColor: "#0070f3",
     color: "white",
     border: "none",
-    borderRadius: "4px",
-    padding: "0.5rem 1rem",
-    fontSize: "1rem",
+    padding: "10px 20px",
+    borderRadius: "5px",
     cursor: "pointer",
-    marginTop: "1rem",
-    transition: "background-color 0.3s",
+    fontSize: "14px",
+    marginTop: "10px",
   },
   errorText: {
-    color: "#d32f2f",
-    padding: "0.5rem",
-    backgroundColor: "#ffebee",
-    borderRadius: "4px",
-    marginTop: "1rem",
+    color: "#ff0000",
+    marginTop: "10px",
   },
   statItem: {
-    padding: "0.5rem 0",
-    borderBottom: "1px solid #eaeaea",
+    marginBottom: "10px",
+    fontSize: "16px",
   },
   jsonDisplay: {
-    backgroundColor: "#f0f0f0",
-    padding: "1rem",
-    borderRadius: "4px",
+    marginTop: "20px",
+    padding: "15px",
+    backgroundColor: "#f7f7f7",
+    borderRadius: "5px",
     overflow: "auto",
-    maxHeight: "400px",
-    fontSize: "0.9rem",
   },
   inputGroup: {
     marginBottom: "1rem",
@@ -74,5 +69,40 @@ export const styles = {
   resultItem: {
     padding: "0.5rem 0",
     borderBottom: "1px solid #eaeaea",
-  }
+  },
+  nav: {
+    backgroundColor: "#333",
+    padding: "1rem",
+    color: "white",
+  },
+  navList: {
+    listStyle: "none",
+    padding: 0,
+    margin: 0,
+    display: "flex",
+    gap: "1rem",
+  },
+  navLink: {
+    color: "white",
+    textDecoration: "none",
+    ":hover": {
+      textDecoration: "underline",
+    },
+  },
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+    marginTop: "15px",
+    fontSize: "14px",
+  },
+  th: {
+    backgroundColor: "#f4f4f4",
+    padding: "12px",
+    textAlign: "left",
+    borderBottom: "2px solid #ddd",
+  },
+  td: {
+    padding: "12px",
+    borderBottom: "1px solid #ddd",
+  },
 };

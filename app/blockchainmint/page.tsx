@@ -2,10 +2,11 @@
 import { useState } from 'react';
 import React from 'react';
 import { styles } from '../styles/dashboardStyles';
+import { CreateMonsterEventDetail } from '../lib/getCreateMonsterEvents';
 
 export default function BlockchainMint() {
-  const [assetTransfers, setAssetTransfers] = useState<unknown>(null);
-  const [isLoadingTransfers, setIsLoadingTransfers] = useState(false);
+  const [events, setEvents] = useState<CreateMonsterEventDetail[] | null>(null);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [stats, setStats] = useState<{
@@ -17,19 +18,19 @@ export default function BlockchainMint() {
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const [statsError, setStatsError] = useState<string | null>(null);
 
-  const fetchAssetTransfers = async () => {
+  const fetchEvents = async () => {
     setError(null);
-    setIsLoadingTransfers(true);
+    setIsLoadingEvents(true);
     try {
-      const res = await fetch('/api/assetTransfers');
+      const res = await fetch('/api/createMonsterEvent/fetch');
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error');
-      setAssetTransfers(data);
+      setEvents(data.events);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message);
     } finally {
-      setIsLoadingTransfers(false);
+      setIsLoadingEvents(false);
     }
   };
 
@@ -85,11 +86,11 @@ export default function BlockchainMint() {
       </section>
 
       <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Blockchain Data</h2>
-        {!isLoadingTransfers && (
+        <h2 style={styles.sectionTitle}>Latest Monster Creation Events</h2>
+        {!isLoadingEvents && (
           <button 
             style={styles.button}
-            onClick={fetchAssetTransfers}
+            onClick={fetchEvents}
             onMouseOver={(e) => {
               e.currentTarget.style.backgroundColor = '#0056b3';
             }}
@@ -97,15 +98,36 @@ export default function BlockchainMint() {
               e.currentTarget.style.backgroundColor = '#0070f3';
             }}
           >
-            Fetch Blockchain Data
+            Fetch Latest Events
           </button>
         )}
         {error && <p style={styles.errorText}>Error: {error}</p>}
-        {isLoadingTransfers ? (
-          <p>Loading blockchain data...</p>
-        ) : assetTransfers !== null ? (
+        {isLoadingEvents ? (
+          <p>Loading events...</p>
+        ) : events ? (
           <div style={styles.jsonDisplay}>
-            <pre>{JSON.stringify(assetTransfers, null, 2)}</pre>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.th}>Block</th>
+                  <th style={styles.th}>Time</th>
+                  <th style={styles.th}>Monster ID</th>
+                  <th style={styles.th}>Supply</th>
+                  <th style={styles.th}>Limit</th>
+                </tr>
+              </thead>
+              <tbody>
+                {events.map((event) => (
+                  <tr key={event.transactionHash}>
+                    <td style={styles.td}>{event.blockNumber}</td>
+                    <td style={styles.td}>{new Date(event.timestamp).toLocaleString()}</td>
+                    <td style={styles.td}>{event.eventData.monsterId}</td>
+                    <td style={styles.td}>{event.eventData.supplyNumber}</td>
+                    <td style={styles.td}>{event.eventData.supplyLimit}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : null}
       </section>
