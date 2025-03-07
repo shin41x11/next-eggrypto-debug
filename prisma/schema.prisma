@@ -32,6 +32,26 @@ model BCMints {
   createdAt DateTime @default(now()) @db.Timestamp(0)
 }
 
+model CreateMonsterEvent {
+  id              Int      @id @default(autoincrement())
+  blockNumber     BigInt
+  timestamp       DateTime
+  transactionHash String   @unique
+  tokenId         String
+  monsterId       String
+  supplyNumber    String
+  supplyLimit     String
+  userMonsterId   String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([blockNumber])
+  @@index([timestamp])
+  @@index([monsterId])
+  @@index([tokenId])
+  @@map("create_monster_events")
+}
+
 enum EnvType {
   MAINNET
   TESTNET

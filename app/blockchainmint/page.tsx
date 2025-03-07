@@ -10,16 +10,12 @@ export default function BlockchainMint() {
 
   const [stats, setStats] = useState<{
     totalCount: number;
-    maxBlockTimestamp: string | null;
-    zeroMonsterIdCount: number;
-    maxCreatedAt: string | null;
+    latestBlockNumber: string | null;
+    latestTimestamp: string | null;
+    latestCreatedAt: string | null;
   } | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const [statsError, setStatsError] = useState<string | null>(null);
-
-  const [mergeResult, setMergeResult] = useState<unknown>(null);
-  const [isLoadingMerge, setIsLoadingMerge] = useState(false);
-  const [mergeError, setMergeError] = useState<string | null>(null);
 
   const fetchAssetTransfers = async () => {
     setError(null);
@@ -41,7 +37,7 @@ export default function BlockchainMint() {
     setStatsError(null);
     setIsLoadingStats(true);
     try {
-      const res = await fetch('/api/bcmint/stats');
+      const res = await fetch('/api/createMonsterEvent/stats');
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error fetching stats');
       setStats(data);
@@ -53,31 +49,13 @@ export default function BlockchainMint() {
     }
   };
 
-  const mergeMonsterId = async () => {
-    setMergeError(null);
-    setIsLoadingMerge(true);
-    try {
-      const res = await fetch('/api/mergeMonsterID');
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || `Error: ${res.status} - ${res.statusText}`);
-      }
-      setMergeResult(data);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      setMergeError(message);
-    } finally {
-      setIsLoadingMerge(false);
-    }
-  };
-
   React.useEffect(() => {
     fetchStats();
   }, []);
 
   return (
     <main style={styles.main}>
-      <h1 style={styles.header}>Mints Dashboard</h1>
+      <h1 style={styles.header}>Monster Creation Events Dashboard</h1>
 
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>View Statistics</h2>
@@ -87,9 +65,9 @@ export default function BlockchainMint() {
         ) : stats ? (
           <div>
             <p style={styles.statItem}>Total records: <strong>{stats.totalCount}</strong></p>
-            <p style={styles.statItem}>Last Loaded blockTimestamp: <strong>{stats.maxBlockTimestamp || 'N/A'}</strong></p>
-            <p style={styles.statItem}>No monsterId Records Count: <strong>{stats.zeroMonsterIdCount}</strong></p>
-            <p style={styles.statItem}>Last Fetched time: <strong>{stats.maxCreatedAt || 'N/A'}</strong></p>
+            <p style={styles.statItem}>Latest Block Number: <strong>{stats.latestBlockNumber || 'N/A'}</strong></p>
+            <p style={styles.statItem}>Latest Event Time: <strong>{stats.latestTimestamp || 'N/A'}</strong></p>
+            <p style={styles.statItem}>Last Fetched time: <strong>{stats.latestCreatedAt || 'N/A'}</strong></p>
             <button 
               style={styles.button} 
               onClick={fetchStats}
@@ -128,32 +106,6 @@ export default function BlockchainMint() {
         ) : assetTransfers !== null ? (
           <div style={styles.jsonDisplay}>
             <pre>{JSON.stringify(assetTransfers, null, 2)}</pre>
-          </div>
-        ) : null}
-      </section>
-
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Merge MonsterId</h2>
-        {!isLoadingStats && (
-          <button 
-            style={styles.button}
-            onClick={mergeMonsterId}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = '#0056b3';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = '#0070f3';
-            }}
-          >
-            Merge Monster ID
-          </button>
-        )}
-        {mergeError && <p style={styles.errorText}>Error: {mergeError}</p>}
-        {isLoadingMerge ? (
-          <p>Merging Monster IDs...</p>
-        ) : mergeResult !== null ? (
-          <div style={styles.jsonDisplay}>
-            <pre>{JSON.stringify(mergeResult, null, 2)}</pre>
           </div>
         ) : null}
       </section>

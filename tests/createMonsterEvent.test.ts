@@ -1,128 +1,17 @@
-import { JsonRpcProvider, Contract, EventLog, Log, Interface } from 'ethers';
+import { getCreateMonsterEvents } from '../app/lib/getCreateMonsterEvents';
+import { PrismaClient } from '@prisma/client';
 
-const POLYGON_RPC_URL = 'https://polygon-mainnet.g.alchemy.com/v2/GsNgdBfxcWX8AXy9IZ-rta68ew2P6uO7';
-const CONTRACT_ADDRESS = '0x3E2FA0c9aD72703B74d94F489e5D7542F4454778';
-
-// ABI for CreateMonsterEvent with indexed parameters
-const CONTRACT_ABI = [
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256"
-      },
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "monsterId",
-        type: "uint256"
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "supplyNumber",
-        type: "uint256"
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "supplyLimit",
-        type: "uint256"
-      },
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "userMonsterId",
-        type: "uint256"
-      }
-    ],
-    name: "CreateMonsterEvent",
-    type: "event"
-  }
-];
+const prisma = new PrismaClient();
 
 describe('CreateMonsterEvent Tests', () => {
-  let provider: JsonRpcProvider;
-  let contract: Contract;
-  let iface: Interface;
-
-  beforeAll(() => {
-    provider = new JsonRpcProvider(POLYGON_RPC_URL);
-    contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
-    iface = new Interface(CONTRACT_ABI);
+  // Cleanup after all tests
+  afterAll(async () => {
+    await prisma.$disconnect();
   });
 
-  it('should fetch the first 100 CreateMonsterEvent logs', async () => {
+  it('should fetch and store CreateMonsterEvent logs', async () => {
     try {
-      // Get the latest block number
-      const latestBlock = await provider.getBlockNumber();
-      console.log('Latest block:', latestBlock);
-
-      // Initialize variables for pagination
-      const BATCH_SIZE = 500000; // Number of blocks to search in each batch
-      const TARGET_EVENT_COUNT = 100; // Number of events we want to find
-      let allLogs: Log[] = [];
-      let currentFromBlock = 13000026; // Start from the beginning
-      let currentToBlock = currentFromBlock + BATCH_SIZE;
-
-      // Configure the filter for event logs
-      const filter = contract.filters.CreateMonsterEvent();
-
-      // Keep fetching until we have enough events or reach the latest block
-      while (allLogs.length < TARGET_EVENT_COUNT && currentFromBlock < latestBlock) {
-        console.log(`Searching blocks ${currentFromBlock} to ${currentToBlock}`);
-        
-        const logs = await contract.queryFilter(filter, currentFromBlock, currentToBlock);
-        allLogs = [...allLogs, ...logs];
-        
-        console.log(`Found ${logs.length} logs in this batch. Total logs: ${allLogs.length}`);
-        
-        // Update block range for next iteration
-        currentFromBlock = currentToBlock + 1;
-        currentToBlock = Math.min(currentFromBlock + BATCH_SIZE, latestBlock);
-      }
-
-      // Take only the first 100 events and parse them
-      const targetLogs = allLogs.slice(0, TARGET_EVENT_COUNT).map(log => {
-        const parsedLog = iface.parseLog({
-          topics: log.topics as string[],
-          data: log.data
-        });
-        return {
-          ...log,
-          args: parsedLog?.args || [],
-          eventName: parsedLog?.name || ''
-        };
-      });
-
-      console.log(`Processing ${targetLogs.length} oldest events`);
-
-      // Get block information for each log
-      const eventDetails = await Promise.all(
-        targetLogs.map(async (log) => {
-          const block = await provider.getBlock(log.blockNumber);
-          return {
-            blockNumber: log.blockNumber,
-            timestamp: block?.timestamp 
-              ? new Date(Number(block.timestamp) * 1000).toISOString()
-              : 'unknown',
-            transactionHash: log.transactionHash,
-            eventData: {
-              tokenId: log.args[0].toString(),
-              monsterId: log.args[1].toString(),
-              supplyNumber: log.args[2].toString(),
-              supplyLimit: log.args[3].toString(),
-              userMonsterId: log.args[4].toString(),
-            }
-          };
-        })
-      );
-
-      // Sort events by block number to ensure chronological order
-      eventDetails.sort((a, b) => a.blockNumber - b.blockNumber);
+      const eventDetails = await getCreateMonsterEvents();
 
       // Log detailed event information
       console.log('Event Details (oldest to newest):');
@@ -134,17 +23,83 @@ describe('CreateMonsterEvent Tests', () => {
         console.log('Event Data:', detail.eventData);
       });
 
-      // Verify that we got some logs
-      expect(eventDetails.length).toBeGreaterThan(0);
-      expect(eventDetails.length).toBeLessThanOrEqual(TARGET_EVENT_COUNT);
+      // Store events in database
+      console.log('\nStoring events in database...');
+      const createPromises = eventDetails.map(async (detail) => {
+        try {
+          return await prisma.createMonsterEvent.upsert({
+            where: {
+              transactionHash: detail.transactionHash,
+            },
+            update: {
+              blockNumber: BigInt(detail.blockNumber),
+              timestamp: new Date(detail.timestamp),
+              tokenId: detail.eventData.tokenId,
+              monsterId: detail.eventData.monsterId,
+              supplyNumber: detail.eventData.supplyNumber,
+              supplyLimit: detail.eventData.supplyLimit,
+              userMonsterId: detail.eventData.userMonsterId,
+            },
+            create: {
+              blockNumber: BigInt(detail.blockNumber),
+              timestamp: new Date(detail.timestamp),
+              transactionHash: detail.transactionHash,
+              tokenId: detail.eventData.tokenId,
+              monsterId: detail.eventData.monsterId,
+              supplyNumber: detail.eventData.supplyNumber,
+              supplyLimit: detail.eventData.supplyLimit,
+              userMonsterId: detail.eventData.userMonsterId,
+            },
+          });
+        } catch (error) {
+          console.error(`Error storing event with hash ${detail.transactionHash}:`, error);
+          throw error;
+        }
+      });
 
-      // Verify the structure of the first log
-      const firstLog = targetLogs[0];
-      expect(firstLog.eventName).toBe('CreateMonsterEvent');
-      expect(firstLog.args.length).toBe(5);
+      const results = await Promise.all(createPromises);
+      console.log(`Successfully stored ${results.length} events`);
+
+      // Verify database storage
+      const storedEvents = await prisma.createMonsterEvent.findMany({
+        where: {
+          transactionHash: {
+            in: eventDetails.map(detail => detail.transactionHash)
+          }
+        },
+        orderBy: {
+          blockNumber: 'asc'
+        }
+      });
+
+      // Verify that we got some logs
+      expect(storedEvents.length).toBeGreaterThan(0);
+      expect(storedEvents.length).toBeLessThanOrEqual(100);
+
+      // Verify the structure of the first event
+      const firstEvent = storedEvents[0];
+      expect(firstEvent).toHaveProperty('tokenId');
+      expect(firstEvent).toHaveProperty('monsterId');
+      expect(firstEvent).toHaveProperty('supplyNumber');
+      expect(firstEvent).toHaveProperty('supplyLimit');
+      expect(firstEvent).toHaveProperty('userMonsterId');
+
+      // Log storage results
+      console.log('\nVerification of stored events:');
+      console.log(`Total events stored: ${storedEvents.length}`);
+      console.log('First stored event:', {
+        blockNumber: firstEvent.blockNumber.toString(),
+        timestamp: firstEvent.timestamp,
+        transactionHash: firstEvent.transactionHash,
+        tokenId: firstEvent.tokenId,
+        monsterId: firstEvent.monsterId,
+        supplyNumber: firstEvent.supplyNumber,
+        supplyLimit: firstEvent.supplyLimit,
+        userMonsterId: firstEvent.userMonsterId,
+      });
 
     } catch (error) {
-      console.error('Error fetching logs:', error);
+      console.error('Error in test:', error);
       throw error;
     }
   }, 120000); // Increase timeout to 120 seconds for batch processing
