@@ -1,26 +1,13 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import React from 'react';
 import { styles } from '../styles/dashboardStyles';
-import { BCMonstersTable } from '../components/BCMonstersTable';
-
-interface BCMonster {
-  monsterId: number;
-  name: string;
-  supplyLimit: number;
-  SupplyCount: number;
-  updatedAt: string;
-}
 
 export default function BlockchainMonster() {
-  const [monsters, setMonsters] = useState<BCMonster[]>([]);
-  const [isLoadingTable, setIsLoadingTable] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // 複数のmonsterIdをカンマ区切りの文字列で入力（例: "1153,2001"）
-  const [monsterIds, setMonsterIds] = useState<string>(() =>
-    Array.from({ length: 101 }, (_, i) => i + 100).join(',')
-  );
+  const [monsterIds, setMonsterIds] = useState<string>('1304,1307');
   const [supplyLimits, setSupplyLimits] = useState<Record<string, { limit: string; number: string }> | null>(null);
 
   const fetchSupplyLimits = async () => {
@@ -38,26 +25,6 @@ export default function BlockchainMonster() {
       setError(message);
     }
   };
-
-  const fetchTableData = async () => {
-    setIsLoadingTable(true);
-    try {
-      const res = await fetch('/api/bcMonsters/list');
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error fetching monsters');
-      setMonsters(data);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error('Error fetching table data:', err);
-      setError(message);
-    } finally {
-      setIsLoadingTable(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTableData();
-  }, []);
 
   return (
     <main style={styles.main}>
@@ -103,15 +70,6 @@ export default function BlockchainMonster() {
           </ul>
         </section>
       )}
-
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Monster List</h2>
-        {isLoadingTable ? (
-          <p>Loading monsters...</p>
-        ) : (
-          <BCMonstersTable data={monsters} />
-        )}
-      </section>
     </main>
   );
 }

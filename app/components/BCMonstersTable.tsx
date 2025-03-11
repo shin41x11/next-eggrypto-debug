@@ -8,6 +8,7 @@ import {
   getPaginationRowModel,
   ColumnDef,
   flexRender,
+  SortingState,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 
@@ -44,7 +45,7 @@ const columns: ColumnDef<BCMonster>[] = [
 ];
 
 export function BCMonstersTable({ data }: { data: BCMonster[] }) {
-  const [sorting, setSorting] = useState([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
 
   const table = useReactTable({
