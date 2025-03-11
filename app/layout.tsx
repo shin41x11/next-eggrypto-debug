@@ -57,8 +57,8 @@ export default function RootLayout({ children }: Props) {
         <nav style={styles.nav}>
           <ul style={styles.navList}>
             <li><Link href="/" style={styles.navLink}>Top</Link></li>
-            <li><Link href="/blockchainmonster" style={styles.navLink}>Supplys</Link></li>
-            <li><Link href="/blockchainmint" style={styles.navLink}>Mints</Link></li>
+            <li><Link href="/blockchainmonster" style={styles.navLink}>MonsterSupplys</Link></li>
+            <li><Link href="/blockchainmint" style={styles.navLink}>CreationEvents</Link></li>
           </ul>
         </nav>
         <main>
