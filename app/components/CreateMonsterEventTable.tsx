@@ -8,7 +8,6 @@ import {
   getPaginationRowModel,
   ColumnDef,
   flexRender,
-  FilterFn,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 
