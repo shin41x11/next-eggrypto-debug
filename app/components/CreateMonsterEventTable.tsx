@@ -8,6 +8,7 @@ import {
   getPaginationRowModel,
   ColumnDef,
   flexRender,
+  SortingState,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 
@@ -32,7 +33,7 @@ const columns: ColumnDef<CreateMonsterEvent>[] = [
   {
     accessorKey: 'timestamp',
     header: 'Timestamp',
-    cell: ({ row }) => new Date(row.getValue('timestamp')).toLocaleString(),
+    cell: ({ row }) => new Date(row.getValue('timestamp') as string).toLocaleString(),
   },
   {
     accessorKey: 'monsterId',
@@ -51,12 +52,12 @@ const columns: ColumnDef<CreateMonsterEvent>[] = [
     header: 'Transaction Hash',
     cell: ({ row }) => (
       <a
-        href={`https://polygonscan.com/tx/${row.getValue('transactionHash')}`}
+        href={`https://polygonscan.com/tx/${row.getValue('transactionHash') as string}`}
         target="_blank"
         rel="noopener noreferrer"
         style={{ color: '#0070f3', textDecoration: 'none' }}
       >
-        {row.getValue('transactionHash').slice(0, 10)}...
+        {(row.getValue('transactionHash') as string).slice(0, 10)}...
       </a>
     ),
   },
@@ -64,7 +65,7 @@ const columns: ColumnDef<CreateMonsterEvent>[] = [
 
 export function CreateMonsterEventTable({ data }: { data: CreateMonsterEvent[] }) {
   console.log('Table received data:', data);
-  const [sorting, setSorting] = useState([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
 
   const table = useReactTable({
